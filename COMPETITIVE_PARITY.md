@@ -12,3 +12,7 @@
 | Tracking | `POST /orders/{id}/advance`, `GET /orders/{id}` |
 | Generic alternatives | `GET /alternatives?drug_id=` |
 | Refills | `POST /refills` |
+
+## v3
+See GAP_ANALYSIS.md — multi-rail payments + undercut pricing + gap features.
+
