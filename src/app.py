@@ -1,0 +1,35 @@
+"""MyPharma — minimal working entrypoint."""
+from __future__ import annotations
+
+import json
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
+
+class Handler(BaseHTTPRequestHandler):
+    def do_GET(self):  # noqa: N802
+        body = {
+            "ok": True,
+            "service": "mypharma",
+            "title": "MyPharma",
+            "description": "Pharmacy catalog + prescription refill service for Pakistan — healthcare vertical, not general e-commerce.",
+            "health": "pass",
+        }
+        data = json.dumps(body, indent=2).encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(data)))
+        self.end_headers()
+        self.wfile.write(data)
+
+    def log_message(self, fmt, *args):  # quiet
+        return
+
+
+def main() -> None:
+    port = 8765
+    print(f"MyPharma listening on http://127.0.0.1:{port}")
+    HTTPServer(("127.0.0.1", port), Handler).serve_forever()
+
+
+if __name__ == "__main__":
+    main()
