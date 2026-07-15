@@ -5,6 +5,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from http_util import JsonAPI, serve, uid, iso
 import payments as pay
+import auth as authmod
 
 DRUGS = [
     {"id": "d1", "name": "Paracetamol 500mg", "generic": "acetaminophen", "category": "otc",
@@ -28,13 +29,19 @@ LABS = [{"id": "lab1", "name": "CBC", "price_pkr": 499, "competitor_price_pkr": 
 class H(JsonAPI):
     def do_GET(self):
         path, q = self.parse()
+        if path.startswith("/auth"):
+            # headers as dict
+            hdrs = {k: v for k, v in self.headers.items()}
+            code, body = authmod.handle_auth_request("GET", path, {}, hdrs, product="mypharma")
+            return self._send(code, body)
+
         if path in ("/", "/health"):
             return self._send(200, {"ok": True, "service": "mypharma", "version": "3.0.0", "parity_target": "DVAGO",
                 "gaps_closed": ["lab_tests", "subscription_refills", "teleconsult_stub", "insurance_claim_stub", "multi_rail_payments", "undercut"]})
         if path == "/capabilities":
             return self._send(200, {"ok": True, "competitor": "DVAGO", "features": [
                 "drug_search", "stock", "rx_gate", "rx_upload", "cart", "slots", "checkout", "tracking",
-                "generics", "refills", "lab_tests", "subscriptions", "teleconsult", "stripe", "jazzcash"]})
+                "generics", "refills", "lab_tests", "subscriptions", "teleconsult", "stripe", "signup", "login", "otp", "oauth_google", "oauth_facebook", "jazzcash"]})
         if path == "/pricing": return self._send(200, {"ok": True, **pay.pricing_for("mypharma")})
         if path == "/payments/rails": return self._send(200, {"ok": True, "rails": pay.list_rails()})
         if path == "/gap-analysis":
@@ -77,6 +84,12 @@ class H(JsonAPI):
         self._send(404, {"ok": False})
 
     def do_POST(self):
+        _path_early = (self.path.split("?")[0].rstrip("/") or "/")
+        if _path_early.startswith("/auth"):
+            hdrs = {k: v for k, v in self.headers.items()}
+            body = self._read_json() if hasattr(self, "_read_json") else self._read()
+            code, resp = authmod.handle_auth_request("POST", _path_early, body if isinstance(body, dict) else {}, hdrs, product="mypharma")
+            return self._send(code, resp)
         path, _ = self.parse()
         body = self._read_json()
         if path == "/cart/add":
