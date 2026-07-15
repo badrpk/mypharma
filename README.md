@@ -1,20 +1,23 @@
-# MyPharma
+# MyPharma 💊
 
-Pharmacy catalog + prescription refill service for Pakistan — healthcare vertical, not general e-commerce.
+**Pharmacy catalog + prescription refill** service for Pakistan.
 
-## Quick start
+Healthcare vertical — not general e-commerce (Rangoons) and not food (Khaana / Laiba Badar).
+
+## Run
 
 ```bash
+git clone https://github.com/badrpk/mypharma.git
+cd mypharma
 python3 src/app.py
-# open http://127.0.0.1:8765
 ```
 
-## Tests
+## API
 
-```bash
-python3 -m pytest -q || python3 -c "import pathlib,importlib.util; p=pathlib.Path('src/app.py'); s=importlib.util.spec_from_file_location('app',p); m=importlib.util.module_from_spec(s); s.loader.exec_module(m); print('ok')"
-```
+- `GET /drugs?q=` — search medicines  
+- `GET /refills` — list refill requests  
+- `POST /refills` — `{drug_id, patient, rx_code?}`  
 
-## Portfolio
+## Contribute
 
-See [PORTFOLIO.md](PORTFOLIO.md) for how this product differs from other badrpk repositories.
+[CONTRIBUTING.md](CONTRIBUTING.md) · [COMMUNITY.md](COMMUNITY.md)
